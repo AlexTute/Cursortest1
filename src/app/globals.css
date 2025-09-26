@@ -1,0 +1,326 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0b0f13;
+  --foreground: #e6eef8;
+  --muted: #9aa7b8;
+  --primary: #6ea8fe; /* soft blue */
+  --primary-ink: #0b0f13;
+  --accent: #8b5cf6; /* violet */
+  --accent-2: #06b6d4; /* cyan */
+  --card: rgba(255, 255, 255, 0.08);
+  --card-border: rgba(255, 255, 255, 0.15);
+  --glass: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  /* Marvel-esque palette */
+  --marvel-red: #e11d2b;
+  --marvel-blue: #0a3d91;
+  --marvel-gold: #f6c445;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --background: #f7fafc;
+    --foreground: #0e1116;
+    --muted: #4b5563;
+    --primary: #2563eb;
+    --primary-ink: #ffffff;
+    --accent: #7c3aed;
+    --accent-2: #0891b2;
+    --card: rgba(255, 255, 255, 0.9);
+    --card-border: rgba(17, 24, 39, 0.12);
+    --glass: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(17, 24, 39, 0.12);
+  }
+}
+
+body {
+  background: radial-gradient(1000px 600px at 10% -10%, rgba(110, 168, 254, 0.12), transparent 60%),
+    radial-gradient(800px 500px at 85% 10%, rgba(139, 92, 246, 0.12), transparent 60%),
+    radial-gradient(1000px 600px at 50% 120%, rgba(6, 182, 212, 0.12), transparent 60%),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  backdrop-filter: saturate(120%);
+}
+
+/* Smooth animations */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Page transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+/* Card hover animations */
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Button animations */
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.loading {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Slide in animation */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Scale animation for modals */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-enter {
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* Button click animations */
+@keyframes buttonClick {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+@keyframes buttonSuccess {
+  0% { transform: scale(1); background-color: var(--primary); }
+  50% { transform: scale(1.05); background-color: #10b981; }
+  100% { transform: scale(1); background-color: var(--primary); }
+}
+
+.button-click {
+  animation: buttonClick 0.15s ease-in-out;
+}
+
+.button-success {
+  animation: buttonSuccess 0.3s ease-in-out;
+}
+
+/* Action button specific styles */
+.action-btn {
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:active {
+  transform: translateY(0) scale(0.95);
+  animation: buttonClick 0.1s ease-in-out;
+}
+
+.action-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.action-btn:active::before {
+  width: 100px;
+  height: 100px;
+}
+
+/* Toast notification styles */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: #10b981;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 250px;
+  max-width: 400px;
+}
+
+.toast-enter {
+  animation: toastSlideIn 0.3s ease-out;
+}
+
+.toast-exit {
+  animation: toastSlideOut 0.3s ease-in;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+.toast-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  margin-left: auto;
+}
+
+.toast-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Glass and card helpers */
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px) saturate(120%);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: var(--primary-ink);
+}
+
+.btn-primary:hover {
+  filter: brightness(0.95);
+}
+
+/* Badges/Chips */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  line-height: 1;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--glass-border);
+}
+
+.badge-hero {
+  background: linear-gradient(135deg, rgba(225,29,43,.9), rgba(10,61,145,.9));
+  color: white;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid var(--glass-border);
+  background: var(--card);
+  font-size: 12px;
+}
+
+/* Progress */
+.progress {
+  position: relative;
+  height: 8px;
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+
+.progress > span {
+  position: absolute;
+  inset: 0 100% 0 0;
+  background: linear-gradient(90deg, var(--marvel-red), var(--marvel-gold), var(--marvel-blue));
+}
