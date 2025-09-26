@@ -44,7 +44,7 @@ export default function Sidebar() {
         })}
       </nav>
       <div className="mt-auto pt-6">
-        <a href="#" className="rounded-lg px-4 py-2 hover:bg-[rgba(255,255,255,0.1)] text-sm transition-all duration-200">Documentation</a>
+        <a href="#" target="_blank" rel="noopener noreferrer" className="rounded-lg px-4 py-2 hover:bg-[rgba(255,255,255,0.1)] text-sm transition-all duration-200">Documentation</a>
       </div>
     </aside>
   );

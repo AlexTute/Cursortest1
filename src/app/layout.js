@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,15 +27,15 @@ export default function RootLayout({ children }) {
           <div className="flex-1 min-w-0">
             <header className="sticky top-0 z-40">
               <div className="glass m-4 rounded-2xl px-4 py-3 flex items-center justify-between">
-                <a href="/" className="flex items-center gap-2">
+                <Link href="/" className="flex items-center gap-2">
                   <div className="h-8 w-8 rounded-xl card flex items-center justify-center">
                     <span className="gradient-text font-bold">A</span>
                   </div>
                   <span className="font-semibold tracking-wide">Avengers Dashboard</span>
-                </a>
+                </Link>
                 <nav className="flex items-center gap-2">
-                  <a href="/" className="rounded-md px-3 py-2 hover:underline">Home</a>
-                  <a href="/dashboards" className="rounded-md px-3 py-2 hover:underline">Overview</a>
+                  <Link href="/" className="rounded-md px-3 py-2 hover:underline">Home</Link>
+                  <Link href="/dashboards" className="rounded-md px-3 py-2 hover:underline">Overview</Link>
                 </nav>
               </div>
             </header>
