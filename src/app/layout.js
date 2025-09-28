@@ -2,6 +2,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
+import AuthProvider from "@/components/AuthProvider";
+import LoginButton from "@/components/LoginButton";
+import ConditionalLayout from "@/components/ConditionalLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,29 +25,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <div className="mx-auto max-w-7xl flex">
-          <Sidebar />
-          <div className="flex-1 min-w-0">
-            <header className="sticky top-0 z-40">
-              <div className="glass m-4 rounded-2xl px-4 py-3 flex items-center justify-between">
-                <Link href="/" className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-xl card flex items-center justify-center">
-                    <span className="gradient-text font-bold">A</span>
-                  </div>
-                  <span className="font-semibold tracking-wide">Avengers Dashboard</span>
-                </Link>
-                <nav className="flex items-center gap-2">
-                  <Link href="/" className="rounded-md px-3 py-2 hover:underline">Home</Link>
-                  <Link href="/dashboards" className="rounded-md px-3 py-2 hover:underline">Overview</Link>
-                </nav>
-              </div>
-            </header>
-            <main className="min-h-[calc(100vh-80px)]">{children}</main>
-            <footer className="p-6 text-center text-sm text-[color:var(--muted)]">
-              <span>Hero-grade UI, inspired by Marvel aesthetics.</span>
-            </footer>
-          </div>
-        </div>
+        <AuthProvider>
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
+        </AuthProvider>
       </body>
     </html>
   );

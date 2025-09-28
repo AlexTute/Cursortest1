@@ -8,6 +8,7 @@ export default function Sidebar() {
   
   const items = [
     { href: "/dashboards", label: "Overview" },
+    { href: "/docs-summary", label: "Docs Summary" },
     { href: "/api-playground", label: "API Playground" },
     { href: "/use-cases", label: "Use Cases" },
     { href: "/billing", label: "Billing" },

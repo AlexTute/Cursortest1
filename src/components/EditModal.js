@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function EditModal({ show, key, name, onClose, onSave, isBusy }) {
+export default function EditModal({ show, name, onClose, onSave, isBusy }) {
   const [editName, setEditName] = useState(name || "");
 
   useEffect(() => {

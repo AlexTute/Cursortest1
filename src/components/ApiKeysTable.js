@@ -159,7 +159,6 @@ export default function ApiKeysTable({
 
       <EditModal
         show={editModal.show}
-        key={editModal.key}
         name={editModal.name}
         onClose={closeEditModal}
         onSave={(name) => handleUpdateName(editModal.key.id, name)}
