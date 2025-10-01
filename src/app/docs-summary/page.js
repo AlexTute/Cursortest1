@@ -11,6 +11,8 @@ export default function DocsSummaryPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("url"); // "url" or "pdf"
+  const [apiKey, setApiKey] = useState("");
+  const [usage, setUsage] = useState(null);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -29,6 +31,10 @@ export default function DocsSummaryPage() {
       setError("Please enter a valid URL");
       return;
     }
+    if (!apiKey.trim()) {
+      setError("Please enter your API key");
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -37,7 +43,10 @@ export default function DocsSummaryPage() {
     try {
       const response = await fetch("/api/summarize", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-api-key": apiKey
+        },
         body: JSON.stringify({ type: "url", content: url }),
       });
 
@@ -49,6 +58,9 @@ export default function DocsSummaryPage() {
 
       if (data.summary && data.summary.trim().length > 0) {
         setSummary(data.summary);
+        if (data.usage) {
+          setUsage(data.usage);
+        }
       } else {
         setError("Summary was generated but appears to be empty. Please try again.");
       }
@@ -65,6 +77,10 @@ export default function DocsSummaryPage() {
       setError("Please select a PDF file");
       return;
     }
+    if (!apiKey.trim()) {
+      setError("Please enter your API key");
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -77,6 +93,9 @@ export default function DocsSummaryPage() {
 
       const response = await fetch("/api/summarize", {
         method: "POST",
+        headers: {
+          "x-api-key": apiKey
+        },
         body: formData,
       });
 
@@ -87,6 +106,9 @@ export default function DocsSummaryPage() {
       }
 
       setSummary(data.summary);
+      if (data.usage) {
+        setUsage(data.usage);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -106,6 +128,21 @@ export default function DocsSummaryPage() {
       </div>
 
       <div className="glass rounded-2xl p-6 mb-8">
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">API Key</label>
+          <input
+            type="text"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder="Enter your API key"
+            className="w-full card rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-[color:var(--accent)]"
+            disabled={loading}
+          />
+          <p className="text-xs text-[color:var(--muted)] mt-1">
+            Get your API key from the Overview page
+          </p>
+        </div>
+        
         <div className="flex gap-1 mb-6">
           <button
             onClick={() => setActiveTab("url")}
@@ -206,6 +243,11 @@ export default function DocsSummaryPage() {
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
               Summary generated successfully
             </div>
+            {usage && (
+              <div className="mt-2 text-xs text-[color:var(--muted)]">
+                API Usage: {usage.current}/{usage.limit} requests used today ({usage.remaining} remaining)
+              </div>
+            )}
           </div>
         </div>
       )}

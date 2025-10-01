@@ -4,6 +4,7 @@ import { CheerioWebBaseLoader } from "@langchain/community/document_loaders/web/
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { z } from "zod";
 import pdf from "pdf-parse";
+import { getAdminClient } from "@/lib/supabaseAdmin";
 
 // Initialize OpenAI
 const llm = new ChatOpenAI({
@@ -11,6 +12,55 @@ const llm = new ChatOpenAI({
   temperature: 0.3,
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+// Function to validate API key and track usage
+async function validateApiKeyAndTrackUsage(apiKey) {
+  if (!apiKey) {
+    throw new Error("API key is required");
+  }
+
+  const supabase = getAdminClient();
+  
+  // Find the API key
+  const { data: keyData, error: keyError } = await supabase
+    .from('api_keys')
+    .select('*')
+    .eq('value', apiKey)
+    .single();
+
+  if (keyError || !keyData) {
+    throw new Error("Invalid API key");
+  }
+
+  // Check usage limits - use the usage column as the limit
+  const dailyLimit = keyData.usage || 100; // Default to 100 if no limit set
+  const currentUsage = keyData.usage_count || 0;
+  
+  if (currentUsage >= dailyLimit) {
+    throw new Error("API key usage limit exceeded");
+  }
+
+  // Increment usage count
+  const { error: updateError } = await supabase
+    .from('api_keys')
+    .update({ 
+      usage_count: currentUsage + 1,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', keyData.id);
+
+  if (updateError) {
+    console.error("Error updating usage count:", updateError);
+    // Don't throw error here, just log it
+  }
+
+  return {
+    keyId: keyData.id,
+    userId: keyData.user_id,
+    usageCount: currentUsage + 1,
+    dailyLimit
+  };
+}
 
 // Define structured output schema
 const SummarySchema = z.object({
@@ -244,6 +294,14 @@ KEY POINTS:
 export async function POST(request) {
   try {
     console.log("API request received");
+    
+    // Get API key from headers
+    const apiKey = request.headers.get("x-api-key");
+    
+    // Validate API key and track usage
+    const keyInfo = await validateApiKeyAndTrackUsage(apiKey);
+    console.log("API key validated, usage count:", keyInfo.usageCount);
+    
     const contentType = request.headers.get("content-type");
     let type, url, file;
     
@@ -303,6 +361,11 @@ export async function POST(request) {
       documentType: result.documentType || "unknown",
       wordCount: result.wordCount || 0,
       originalLength: text.length,
+      usage: {
+        current: keyInfo.usageCount,
+        limit: keyInfo.dailyLimit,
+        remaining: keyInfo.dailyLimit - keyInfo.usageCount
+      }
     };
     
     console.log("Final response:", response);
