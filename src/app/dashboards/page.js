@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useApiKeys } from "@/hooks/useApiKeys";
+import { useLegacyApiKeys } from "@/hooks/useLegacyApiKeys";
 import ApiKeyForm from "@/components/ApiKeyForm";
 import ApiKeysTable from "@/components/ApiKeysTable";
 import HeroCard from "@/components/HeroCard";
 import Toast from "@/components/Toast";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function ApiKeysDashboard() {
   const {
@@ -16,10 +17,10 @@ export default function ApiKeysDashboard() {
     busyId,
     refresh,
     createKey,
-    updateName,
+    updateKey,
     deleteKey,
     setError
-  } = useApiKeys();
+  } = useLegacyApiKeys();
 
   const [toast, setToast] = useState({ show: false, message: "" });
 
@@ -35,7 +36,7 @@ export default function ApiKeysDashboard() {
 
   async function handleUpdateName(id, name) {
     try {
-      await updateName(id, name);
+      await updateKey(id, { name });
       setToast({ show: true, message: "API Key updated successfully!" });
       setTimeout(() => setToast({ show: false, message: "" }), 3000);
     } catch (error) {
@@ -54,34 +55,36 @@ export default function ApiKeysDashboard() {
   }
 
   return (
-    <div className="font-sans mx-auto max-w-6xl px-6 py-10 fade-in">
-      <div className="mb-6 slide-in">
-        <div className="text-sm text-[color:var(--muted)] mb-1">Pages / Overview</div>
-        <h1 className="text-3xl font-bold">Overview</h1>
+    <ProtectedRoute>
+      <div className="font-sans mx-auto max-w-6xl px-6 py-10 fade-in">
+        <div className="mb-6 slide-in">
+          <div className="text-sm text-[color:var(--muted)] mb-1">Pages / Overview</div>
+          <h1 className="text-3xl font-bold">Overview</h1>
+        </div>
+
+        <HeroCard />
+
+        <ApiKeyForm onCreateKey={handleCreateKey} isBusy={isBusy} />
+
+        {error ? (
+          <div className="text-red-400 mb-4">{error}</div>
+        ) : null}
+
+        <ApiKeysTable
+          keys={keys}
+          loading={loading}
+          onUpdateName={handleUpdateName}
+          onDeleteKey={handleDeleteKey}
+          isBusy={isBusy}
+          busyId={busyId}
+        />
+
+        <Toast
+          show={toast.show}
+          message={toast.message}
+          onClose={() => setToast({ show: false, message: "" })}
+        />
       </div>
-
-      <HeroCard />
-
-      <ApiKeyForm onCreateKey={handleCreateKey} isBusy={isBusy} />
-
-      {error ? (
-        <div className="text-red-400 mb-4">{error}</div>
-      ) : null}
-
-      <ApiKeysTable
-        keys={keys}
-        loading={loading}
-        onUpdateName={handleUpdateName}
-        onDeleteKey={handleDeleteKey}
-        isBusy={isBusy}
-        busyId={busyId}
-      />
-
-      <Toast
-        show={toast.show}
-        message={toast.message}
-        onClose={() => setToast({ show: false, message: "" })}
-      />
-    </div>
+    </ProtectedRoute>
   );
 }

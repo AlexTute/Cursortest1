@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { getAdminClient } from "./supabaseAdmin";
 
 const authOptions = {
   providers: [
@@ -13,6 +14,55 @@ const authOptions = {
     error: "/auth/error",
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google") {
+        try {
+          console.log("Google sign in attempt for:", user.email);
+          const supabase = getAdminClient();
+          
+          // Check if user already exists
+          const { data: existingUser, error: fetchError } = await supabase
+            .from("users")
+            .select("id")
+            .eq("email", user.email)
+            .single();
+
+          if (fetchError && fetchError.code !== 'PGRST116') {
+            console.error("Error checking existing user:", fetchError);
+            return false;
+          }
+
+          if (!existingUser) {
+            console.log("Creating new user for:", user.email);
+            
+            // Create new user in Supabase (let Supabase generate the UUID)
+            const { data: newUser, error } = await supabase
+              .from("users")
+              .insert({
+                email: user.email,
+                name: user.name,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              })
+              .select()
+              .single();
+
+            if (error) {
+              console.error("Error creating user:", error);
+              return false; // Prevent sign in if user creation fails
+            }
+            
+            console.log("New user created successfully:", newUser);
+          } else {
+            console.log("User already exists:", existingUser.id);
+          }
+        } catch (error) {
+          console.error("Error in signIn callback:", error);
+          return false; // Prevent sign in if there's an error
+        }
+      }
+      return true;
+    },
     async session({ session, user }) {
       if (session?.user) {
         session.user.id = user?.id;
