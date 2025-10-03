@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Shield, Bell, Palette, User, Key, Globe } from "@/components/Icons";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -10,6 +11,7 @@ export default function Settings() {
     push: false,
     sms: false
   });
+  const { theme, accentColor, changeTheme, changeAccentColor } = useTheme();
 
   const tabs = [
     { id: "profile", label: "Profile", icon: <User className="w-4 h-4" /> },
@@ -150,10 +152,21 @@ export default function Settings() {
                   <div>
                     <h3 className="font-semibold mb-4">Theme</h3>
                     <div className="grid grid-cols-3 gap-4">
-                      {["Light", "Dark", "Auto"].map((theme) => (
-                        <button key={theme} className="action-btn p-4 card text-center">
+                      {["Light", "Dark", "Auto"].map((themeOption) => (
+                        <button 
+                          key={themeOption} 
+                          onClick={() => changeTheme(themeOption.toLowerCase())}
+                          className={`action-btn p-4 card text-center transition-all duration-200 ${
+                            theme === themeOption.toLowerCase() 
+                              ? 'ring-2 ring-[var(--accent)] bg-[var(--accent)]/10' 
+                              : 'hover:bg-[rgba(255,255,255,0.1)]'
+                          }`}
+                        >
                           <div className="w-8 h-8 bg-gradient-to-r from-[var(--marvel-red)] to-[var(--marvel-blue)] rounded-full mx-auto mb-2"></div>
-                          {theme}
+                          {themeOption}
+                          {theme === themeOption.toLowerCase() && (
+                            <div className="text-xs text-[var(--accent)] font-medium mt-1">Selected</div>
+                          )}
                         </button>
                       ))}
                     </div>
@@ -162,14 +175,29 @@ export default function Settings() {
                   <div>
                     <h3 className="font-semibold mb-4">Accent Color</h3>
                     <div className="flex gap-3">
-                      {["#e11d2b", "#0a3d91", "#f6c445", "#06b6d4", "#8b5cf6"].map((color) => (
+                      {[
+                        { color: "#e11d2b", name: "Red" },
+                        { color: "#0a3d91", name: "Blue" },
+                        { color: "#f6c445", name: "Yellow" },
+                        { color: "#06b6d4", name: "Cyan" },
+                        { color: "#8b5cf6", name: "Purple" }
+                      ].map((colorOption) => (
                         <button
-                          key={color}
-                          className="w-10 h-10 rounded-full border-2 border-white"
-                          style={{ backgroundColor: color }}
+                          key={colorOption.color}
+                          onClick={() => changeAccentColor(colorOption.color)}
+                          className={`w-10 h-10 rounded-full border-2 transition-all duration-200 ${
+                            accentColor === colorOption.color 
+                              ? 'border-white ring-2 ring-[var(--accent)] scale-110' 
+                              : 'border-white hover:scale-105'
+                          }`}
+                          style={{ backgroundColor: colorOption.color }}
+                          title={colorOption.name}
                         />
                       ))}
                     </div>
+                    <p className="text-sm text-[color:var(--muted)] mt-2">
+                      Current accent color: <span style={{ color: accentColor }} className="font-medium">{accentColor}</span>
+                    </p>
                   </div>
                 </div>
               </div>
